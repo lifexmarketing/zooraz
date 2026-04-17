@@ -7,6 +7,7 @@
  * Requires Plugins: woocommerce
  * License:     GPL-2.0+
  * Text Domain: zooraz
+ * GitHub Plugin URI: lifexmarketing/zooraz
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,6 +17,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'ZOORAZ_VERSION', '1.0.0' );
 define( 'ZOORAZ_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'ZOORAZ_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+
+if ( is_admin() ) {
+    require_once ZOORAZ_PLUGIN_DIR . 'includes/class-updater.php';
+    new Zooraz_Updater( __FILE__, ZOORAZ_VERSION );
+}
 
 add_action( 'plugins_loaded', function () {
     if ( ! class_exists( 'WooCommerce' ) ) {
