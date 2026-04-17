@@ -45,7 +45,7 @@ class Zooraz_Updater {
                 'plugin'      => $plugin_key,
                 'new_version' => $remote_version,
                 'url'         => 'https://github.com/' . $this->repo,
-                'package'     => $release->zipball_url,
+                'package'     => $this->get_download_url( $release ),
                 'icons'       => [],
                 'banners'     => [],
                 'requires_php'=> '7.4',
@@ -77,7 +77,7 @@ class Zooraz_Updater {
             'version'       => ltrim( $release->tag_name, 'v' ),
             'author'        => $plugin_data['Author'],
             'homepage'      => 'https://github.com/' . $this->repo,
-            'download_link' => $release->zipball_url,
+            'download_link' => $this->get_download_url( $release ),
             'sections'      => [
                 'description' => $plugin_data['Description'],
                 'changelog'   => nl2br( esc_html( $release->body ?? '' ) ),
@@ -94,6 +94,10 @@ class Zooraz_Updater {
 
         $install_dir = WP_PLUGIN_DIR . '/' . $this->plugin_slug;
 
+        if ( untrailingslashit( $result['destination'] ) === $install_dir ) {
+            return $result;
+        }
+
         if ( $wp_filesystem->is_dir( $install_dir ) ) {
             $wp_filesystem->delete( $install_dir, true );
         }
@@ -102,6 +106,16 @@ class Zooraz_Updater {
         $result['destination'] = $install_dir;
 
         return $result;
+    }
+
+    private function get_download_url( object $release ): string {
+        foreach ( $release->assets ?? [] as $asset ) {
+            if ( $asset->name === 'zooraz.zip' ) {
+                return $asset->browser_download_url;
+            }
+        }
+
+        return $release->zipball_url;
     }
 
     private function get_latest_release(): ?object {
